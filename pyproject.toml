@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streamlit-copilot"
+version = "0.0.1"
+dependencies = [
+    "pandas",
+]
+
+[project.scripts]
+st-copilot = "streamlit_copilot.cli:cli"
+
+[tool.setuptools]
+packages = ["streamlit_copilot"]
