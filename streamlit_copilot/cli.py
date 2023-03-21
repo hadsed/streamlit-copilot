@@ -1,9 +1,12 @@
 import os
 import subprocess
+import logging
+
 import click
 from textwrap import dedent, indent
 
 from streamlit_copilot.copilot import Copilot
+from streamlit_copilot.logging import configure_stream_logger
 
 
 APP_PATH = 'app/app.py'
@@ -13,6 +16,9 @@ HELP_TEXT = dedent("""
     /help   Show this help text
 """)
 
+logger = logging.getLogger(__name__)
+package_logger = logging.getLogger('streamlit_copilot')
+configure_stream_logger(package_logger, logging.DEBUG)
 
 
 def run_app():
@@ -22,6 +28,9 @@ def run_app():
     env.update({
         'STREAMLIT_SERVER_PORT': port,
         'STREAMLIT_SERVER_RUN_ON_SAVE': 'true',
+        'STREAMLIT_SERVER_ENABLE_CORS': 'false',
+        'STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION': 'false',
+        'STREAMLIT_SERVER_HEADLESS': 'true',
     })
     process = subprocess.Popen(
         ['streamlit', 'run', APP_PATH],
@@ -51,20 +60,19 @@ def cli():
     command_count = 0
     while True:
         print_command_input_header(command_count)
-        user_input = input()
-        command_buffer = []
-        if user_input == '/exit':
+        command = input()
+        if command == '/exit':
             process.kill()
             break
-        elif user_input == '/go':
-            copilot.instruct(command_buffer)
-            print_copilot_response_header(command_count)
-            print_copilot_response(copilot.response())
-            print_separator()
-            command_buffer = []
-            command_count += 1
+        elif command == '/help':
+            print(HELP_TEXT)
         else:
-            command_buffer.append(user_input)
+            print_copilot_response_header(command_count)
+            print(f"Executing command...\n")
+            response = copilot.command(command)
+            print_copilot_response(response)
+            print_separator()
+            command_count += 1
 
 
 def print_command_input_header(command_count):
