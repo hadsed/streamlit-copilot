@@ -4,6 +4,9 @@
 *.zip
 *.npy
 
+app/
+datasets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
